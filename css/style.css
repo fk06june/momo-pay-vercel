@@ -354,3 +354,99 @@ html, body {
   transition: transform 120ms ease;
 }
 .whatsapp-confirm-btn:active { transform: scale(0.98); }
+
+
+/* ---- Weather context card: same ink/panel language, compact and mobile-first ---- */
+.weather-card {
+  margin-top: 16px;
+  padding: 18px 20px 20px;
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(29, 44, 70, 0.96), rgba(22, 35, 58, 0.96));
+}
+.weather-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.weather-card h2 {
+  margin: 2px 0 0;
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.15;
+}
+.weather-live-dot {
+  width: 9px;
+  height: 9px;
+  margin-top: 5px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 0 5px rgba(63, 182, 139, 0.10);
+}
+.weather-info { margin-top: 16px; }
+.weather-status {
+  margin: 0;
+  color: var(--fog);
+  font-size: 12px;
+}
+.weather-main {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.weather-temp {
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.weather-condition {
+  color: var(--amber);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+}
+.weather-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 0;
+}
+.weather-meta-item {
+  padding: 9px 10px;
+  border: 1px solid rgba(42, 59, 88, 0.88);
+  border-radius: 10px;
+  background: rgba(15, 27, 43, 0.34);
+}
+.weather-meta-item dt {
+  color: var(--fog);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.weather-meta-item dd {
+  margin: 3px 0 0;
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.weather-updated {
+  margin: 12px 0 0;
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.weather-error {
+  margin: 0;
+  color: var(--rose);
+  font-size: 12px;
+  line-height: 1.45;
+}
+@media (max-width: 360px) {
+  .weather-card { padding-inline: 16px; }
+  .weather-meta { grid-template-columns: 1fr; }
+}

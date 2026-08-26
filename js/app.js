@@ -49,6 +49,66 @@
   const providerBtns = document.querySelectorAll(".provider-btn");
   const liveRegion = document.getElementById("live-region");
   const resetBtn = document.getElementById("reset-btn");
+  const weatherInfo = document.getElementById("weather-info");
+  const WEATHER_URL =
+    "https://api.open-meteo.com/v1/forecast?latitude=-3.3731&longitude=29.9189" +
+    "&current=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m" +
+    "&timezone=Africa%2FBujumbura";
+
+  function weatherCodeToLabel(code) {
+    if (code === 0) return "Ciel dégagé";
+    if ([1, 2, 3].includes(code)) return "Partiellement nuageux";
+    if ([45, 48].includes(code)) return "Brouillard";
+    if ([51, 53, 55, 56, 57].includes(code)) return "Bruine";
+    if ([61, 63, 65, 66, 67].includes(code)) return "Pluie";
+    if ([71, 73, 75, 77].includes(code)) return "Neige";
+    if ([80, 81, 82].includes(code)) return "Averses";
+    if ([95, 96, 99].includes(code)) return "Orage";
+    return "Conditions variables";
+  }
+
+  async function getWeather() {
+    if (!weatherInfo) return;
+
+    try {
+      const response = await fetch(WEATHER_URL);
+      if (!response.ok) throw new Error("Réponse météo indisponible.");
+
+      const data = await response.json();
+      const current = data.current;
+      if (!current) throw new Error("Données météo incomplètes.");
+
+      const temperature = Number(current.temperature_2m).toLocaleString("fr-FR", {
+        maximumFractionDigits: 1,
+      });
+      const humidity = Number(current.relative_humidity_2m).toLocaleString("fr-FR");
+      const wind = Number(current.wind_speed_10m).toLocaleString("fr-FR", {
+        maximumFractionDigits: 1,
+      });
+      const updatedAt = current.time
+        ? new Date(current.time).toLocaleTimeString("fr-FR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "—";
+
+      weatherInfo.innerHTML = `
+        <div class="weather-main">
+          <strong class="weather-temp">${temperature}°C</strong>
+          <span class="weather-condition">${weatherCodeToLabel(current.weather_code)}</span>
+        </div>
+        <dl class="weather-meta">
+          <div class="weather-meta-item"><dt>Humidité</dt><dd>${humidity}%</dd></div>
+          <div class="weather-meta-item"><dt>Vent</dt><dd>${wind} km/h</dd></div>
+        </dl>
+        <p class="weather-updated">Actualisé à ${updatedAt} · Open-Meteo</p>
+      `;
+    } catch (error) {
+      weatherInfo.innerHTML =
+        '<p class="weather-error">La météo est momentanément indisponible. Le paiement reste fonctionnel.</p>';
+      console.error("Erreur météo :", error);
+    }
+  }
 
   function formatAmount(raw) {
     const digits = raw.replace(/[^\d]/g, "").slice(0, 9);
@@ -178,5 +238,6 @@
     form.hidden = false;
   });
 
+  window.addEventListener("load", getWeather);
   updateSubmitState();
 })();
