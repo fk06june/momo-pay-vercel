@@ -15,7 +15,7 @@ MomoPay est un formulaire de démonstration pour Lumicash et EcoCash au Burundi.
 
 ## Bouton WhatsApp
 
-Le bouton flottant et le bouton du reçu utilisent `https://wa.me/25761124458`. Pour utiliser votre propre numéro, remplacez `25761124458` dans `index.html` et dans `js/app.js` par le numéro international sans `+` ni espaces. Le professeur pourra alors cliquer sur WhatsApp et envoyer le message depuis son téléphone ou WhatsApp Web.
+Le bouton flottant et le bouton du reçu utilisent une URL adaptée à l’appareil : WhatsApp Web sur ordinateur et l’URL universelle WhatsApp sur téléphone. Pour utiliser votre propre numéro, remplacez `25761124458` dans `index.html` et dans `js/app.js` par le numéro international sans `+` ni espaces. Le professeur pourra alors cliquer sur WhatsApp et envoyer le message depuis son téléphone ou WhatsApp Web.
 
 ## Déploiement sur Vercel
 

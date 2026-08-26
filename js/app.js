@@ -1,5 +1,22 @@
 (() => {
-  const MERCHANT_WHATSAPP = "25761124458"; // format wa.me : indicatif + numéro, sans "+" ni espaces
+  const MERCHANT_WHATSAPP = "25761124458"; // indicatif + numéro, sans "+" ni espaces
+
+  function buildWhatsAppUrl(message) {
+    const query = new URLSearchParams({
+      phone: MERCHANT_WHATSAPP,
+      text: message,
+    }).toString();
+    // Sur ordinateur, WhatsApp Web évite la demande d’installation de l’application.
+    // Sur téléphone, l’URL universelle laisse le système ouvrir WhatsApp installé.
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const endpoint = isMobile ? "https://api.whatsapp.com/send" : "https://web.whatsapp.com/send";
+    return `${endpoint}?${query}`;
+  }
+
+  const directWhatsAppLink = document.querySelector(".wa-fab");
+  if (directWhatsAppLink) {
+    directWhatsAppLink.href = buildWhatsAppUrl("Bonjour, j'ai une question sur un paiement MomoPay.");
+  }
 
   const PROVIDERS = {
     lumicash: { label: "Lumicash" },
@@ -120,13 +137,12 @@
     document.getElementById("r-phone").textContent = payload.phone;
     document.getElementById("r-txid").textContent = txId;
 
-    const waText = encodeURIComponent(
+    const waMessage =
       `Bonjour, je viens de faire un paiement MomoPay.\n` +
-        `Référence : ${txId}\n` +
-        `Montant : FBu ${Number(payload.amount).toLocaleString("fr-FR")}\n` +
-        `Opérateur : ${PROVIDERS[payload.provider].label}`
-    );
-    document.getElementById("r-whatsapp-link").href = `https://wa.me/${MERCHANT_WHATSAPP}?text=${waText}`;
+      `Référence : ${txId}\n` +
+      `Montant : FBu ${Number(payload.amount).toLocaleString("fr-FR")}\n` +
+      `Opérateur : ${PROVIDERS[payload.provider].label}`;
+    document.getElementById("r-whatsapp-link").href = buildWhatsAppUrl(waMessage);
 
     form.hidden = true;
     receipt.hidden = false;
