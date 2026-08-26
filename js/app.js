@@ -1,5 +1,6 @@
 (() => {
   const MERCHANT_WHATSAPP = "25761703633"; // indicatif + numéro, sans "+" ni espaces
+  const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby_ZhuOwjnHay4Tx8gZ3t0nH3Jk0ZjQ52VW9EeFfy8AhUUxI7jM4lJKPIht3wB25SJc0A/exec";
 
   function buildWhatsAppUrl(message) {
     const encodedMessage = encodeURIComponent(message);
@@ -23,6 +24,27 @@
       event.preventDefault();
       openWhatsApp(message);
     });
+  }
+
+  async function logTransactionToSheets(payload, txId) {
+    if (!SHEETS_WEB_APP_URL) return;
+    try {
+      await fetch(SHEETS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          amount: payload.amount,
+          operator: PROVIDERS[payload.provider].label,
+          phone: payload.phone,
+          reference: txId,
+          status: "Simulation réussie",
+        }),
+      });
+    } catch (error) {
+      // L’enregistrement Sheets ne doit jamais empêcher l’affichage du reçu.
+      console.warn("Enregistrement Google Sheets indisponible :", error);
+    }
   }
 
   const directWhatsAppLink = document.querySelector(".wa-fab");
@@ -268,6 +290,7 @@
       `Montant : FBu ${Number(payload.amount).toLocaleString("fr-FR")}\n` +
       `Opérateur : ${PROVIDERS[payload.provider].label}`;
     setWhatsAppAction(document.getElementById("r-whatsapp-link"), waMessage);
+    void logTransactionToSheets(payload, txId);
 
     form.hidden = true;
     receipt.hidden = false;
