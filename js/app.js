@@ -1,5 +1,5 @@
 (() => {
-  const MERCHANT_WHATSAPP = "25761124458"; // indicatif + numéro, sans "+" ni espaces
+  const MERCHANT_WHATSAPP = "25761703633"; // indicatif + numéro, sans "+" ni espaces
 
   function buildWhatsAppUrl(message) {
     const query = new URLSearchParams({
