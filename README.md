@@ -1,55 +1,37 @@
-# MomoPay — formulaire de paiement mobile
+# MomoPay — formulaire de paiement Mobile Money
 
-MomoPay est une démonstration pédagogique d’un parcours de paiement mobile au Burundi. Le frontend permet de saisir un montant, de choisir Lumicash ou EcoCash, de valider un numéro burundais, puis d’afficher un reçu. Le bouton WhatsApp ouvre une conversation avec le récapitulatif prérempli.
+MomoPay est un formulaire de démonstration pour Lumicash et EcoCash au Burundi. Le paiement est simulé : aucun fonds réel n’est débité. Après la confirmation, un reçu est affiché et un bouton permet d’ouvrir WhatsApp avec un message prérempli.
 
-> **Important :** le paiement est simulé. Cette version ne débite aucun compte et ne remplace pas une intégration opérateur certifiée.
+## Structure
 
-## Structure du projet
-
-| Élément | Rôle |
+| Fichier | Rôle |
 | --- | --- |
-| `client/src/pages/Home.tsx` | Formulaire, validation, reçu et liens WhatsApp |
-| `client/src/index.css` | Direction visuelle Mobile Money Editorial et responsive |
-| `api/pay.js` | Fonction Vercel de simulation et notification WhatsApp Cloud |
+| `index.html` | Page frontend originale et formulaire |
+| `css/style.css` | Style visuel original MomoPay |
+| `js/app.js` | Validation du formulaire, simulation et lien WhatsApp |
+| `api/pay.js` | Fonction Vercel : validation et notification WhatsApp Cloud |
 | `api/whatsapp-webhook.js` | Vérification du webhook Meta et réponse automatique de test |
-| `vercel.json` | Build Vite et dossier de sortie Vercel |
-| `ideas.md` | Décisions de conception et règles de marque |
+| `vercel.json` | Configuration de réécriture Vercel |
 
-## Fonctionnement WhatsApp
+## Bouton WhatsApp
 
-Le bouton visible sur le reçu, le pied de page et le bouton flottant utilisent l’URL officielle `https://wa.me/` avec un message prérempli. Le professeur peut donc cliquer sur **WhatsApp** et envoyer le message directement depuis son téléphone ou WhatsApp Web.
+Le bouton flottant et le bouton du reçu utilisent `https://wa.me/25761124458`. Pour utiliser votre propre numéro, remplacez `25761124458` dans `index.html` et dans `js/app.js` par le numéro international sans `+` ni espaces. Le professeur pourra alors cliquer sur WhatsApp et envoyer le message depuis son téléphone ou WhatsApp Web.
 
-Après un paiement simulé en production, `api/pay.js` peut également appeler l’API WhatsApp Cloud de Meta pour envoyer une notification au numéro du marchand. Cette notification serveur est indépendante du bouton `wa.me` du navigateur.
+## Déploiement sur Vercel
 
-## Déployer sur Vercel
+Importez ce dépôt GitHub dans Vercel avec **Add New → Project**. Comme il s’agit d’un frontend HTML/CSS/JavaScript sans étape de build, laissez le framework sur **Other** et ne renseignez pas de commande de build. Le dossier `api/` sera détecté comme fonctions Vercel.
 
-1. Créer un dépôt GitHub privé et y importer le contenu du projet en conservant `api/`, `client/` et `vercel.json` à la racine.
-2. Dans Vercel, choisir **Add New → Project**, puis sélectionner le dépôt.
-3. Laisser Vercel utiliser la configuration du projet. Le build est `pnpm build` et le dossier publié est `dist/public`.
-4. Ajouter dans **Settings → Environment Variables** les variables suivantes si la notification serveur Meta est souhaitée :
+Pour activer la notification serveur WhatsApp Cloud après une transaction, ajoutez les variables suivantes dans les paramètres Vercel :
 
-| Variable | Valeur |
+| Variable | Valeur attendue |
 | --- | --- |
 | `WHATSAPP_ACCESS_TOKEN` | Token d’accès Meta WhatsApp Cloud |
-| `WHATSAPP_PHONE_NUMBER_ID` | Phone Number ID du numéro de test ou professionnel |
-| `MERCHANT_WHATSAPP_TO` | Numéro destinataire au format international, sans `+` ni espaces |
-| `WHATSAPP_VERIFY_TOKEN` | Secret choisi pour vérifier le webhook |
-| `VITE_MERCHANT_WHATSAPP` | Numéro utilisé par le bouton navigateur, sans `+` ni espaces ; facultatif, la valeur de démonstration est déjà présente |
+| `WHATSAPP_PHONE_NUMBER_ID` | Identifiant du numéro WhatsApp Cloud |
+| `MERCHANT_WHATSAPP_TO` | Numéro destinataire international, sans `+` ni espaces |
+| `WHATSAPP_VERIFY_TOKEN` | Valeur secrète choisie pour le webhook |
 
-5. Redéployer après l’ajout des variables d’environnement.
+Le paiement reste une simulation tant qu’un véritable opérateur Mobile Money n’est pas connecté. Meta explique la création de l’application, l’envoi/réception de messages, le webhook et les tokens dans son guide [WhatsApp Cloud API — Get Started](https://developers.facebook.com/documentation/business-messaging/whatsapp/get-started). Vercel documente le déploiement des fonctions Node.js dans le dossier [`/api`](https://vercel.com/docs/functions/runtimes/node-js).
 
-## Connecter le webhook Meta
+## Test de présentation
 
-Dans le tableau de bord Meta, ouvrir **WhatsApp → Configuration → Webhooks**, puis utiliser :
-
-- **Callback URL :** `https://VOTRE-DOMAINE-VERCEL/api/whatsapp-webhook`
-- **Verify token :** la même valeur que `WHATSAPP_VERIFY_TOKEN`
-- **Champ à abonner :** `messages`
-
-Meta documente la création de l’application, l’envoi et la réception de messages, le webhook de test et le token permanent dans le guide [WhatsApp Cloud API — Get Started](https://developers.facebook.com/documentation/business-messaging/whatsapp/get-started). La structure `/api` utilisée par ce projet correspond aux fonctions Node.js documentées par [Vercel](https://vercel.com/docs/functions/runtimes/node-js).
-
-## Test pour la présentation
-
-Pour présenter le projet, saisir un montant d’au moins **500 FBu**, sélectionner un opérateur et entrer huit chiffres de téléphone. Cliquer sur **Confirmer via…**, puis sur **Ouvrir WhatsApp avec le récapitulatif**. Le reçu doit afficher l’opérateur, le numéro et une référence de transaction.
-
-Si l’objectif est seulement de montrer le bouton WhatsApp au professeur, aucune clé Meta n’est nécessaire : le lien `wa.me` suffit. Les variables Meta deviennent nécessaires uniquement pour recevoir automatiquement une notification serveur après la simulation ou pour activer le webhook entrant.
+Saisissez un montant d’au moins 500 FBu, sélectionnez Lumicash ou EcoCash, entrez huit chiffres de téléphone, puis cliquez sur **Confirmer via…**. Dans le reçu, cliquez sur **Confirmer sur WhatsApp**. Pour le webhook entrant, configurez dans Meta l’URL `https://VOTRE-DOMAINE/api/whatsapp-webhook` avec le même `WHATSAPP_VERIFY_TOKEN`, puis abonnez le champ `messages`.
