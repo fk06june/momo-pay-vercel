@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>MomoPay — Paiement Mobile Money</title>
+<meta name="description" content="Formulaire de paiement Mobile Money (Lumicash / EcoCash) pour le Burundi." />
+<meta name="theme-color" content="#0F1B2B" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<main class="wrap">
+  <header class="brand">
+    <div class="brand-mark">M</div>
+    <div>
+      <p class="brand-name">MomoPay</p>
+      <p class="brand-sub">Paiement Mobile Money · Burundi</p>
+    </div>
+  </header>
+
+  <!-- ===== Formulaire de paiement ===== -->
+  <form id="pay-form" class="ticket" novalidate>
+    <div class="ticket-hero">
+      <label for="amount" class="field-label">Montant à payer</label>
+      <div class="amount-row">
+        <span class="amount-currency">FBu</span>
+        <input
+          id="amount"
+          name="amount"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="0"
+          class="amount-input"
+        />
+      </div>
+      <p id="amount-error" class="field-error" hidden>Le montant minimum est de 500 FBu.</p>
+    </div>
+
+    <div class="stub-divider"></div>
+
+    <div class="ticket-body">
+      <div>
+        <span class="field-label">Opérateur</span>
+        <div class="provider-grid" role="group" aria-label="Choix de l'opérateur">
+          <button type="button" class="provider-btn is-active" data-provider="lumicash" aria-pressed="true">
+            <span class="dot dot-rose"></span>Lumicash
+          </button>
+          <button type="button" class="provider-btn" data-provider="ecocash" aria-pressed="false">
+            <span class="dot dot-mint"></span>EcoCash
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <label for="phone" class="field-label">Numéro <span id="provider-label">Lumicash</span></label>
+        <div class="phone-row">
+          <span class="phone-prefix">+257</span>
+          <input
+            id="phone"
+            name="phone"
+            inputmode="numeric"
+            autocomplete="tel-national"
+            placeholder="69 71 34 24"
+            maxlength="8"
+            class="phone-input"
+          />
+        </div>
+        <p id="phone-error" class="field-error" hidden>Entre les 8 chiffres du numéro.</p>
+      </div>
+
+      <p id="form-error" class="alert-error" role="alert" hidden></p>
+
+      <button type="submit" id="submit-btn" class="submit-btn">
+        <span id="submit-label">Confirmer via Lumicash</span>
+      </button>
+      <p class="fine-print">Simulation — aucun fonds réel n'est débité.</p>
+    </div>
+  </form>
+
+  <!-- ===== Reçu de succès ===== -->
+  <section id="receipt" class="ticket" hidden>
+    <div class="receipt-head">
+      <div class="check-badge">✓</div>
+      <p class="receipt-title">Paiement confirmé</p>
+      <p class="receipt-sub">Un reçu a été envoyé sur WhatsApp</p>
+    </div>
+
+    <div class="stub-divider"></div>
+
+    <dl class="receipt-details">
+      <div class="row"><dt>Montant</dt><dd id="r-amount"></dd></div>
+      <div class="row"><dt>Opérateur</dt><dd id="r-provider"></dd></div>
+      <div class="row"><dt>Numéro</dt><dd id="r-phone"></dd></div>
+      <div class="row"><dt>Référence</dt><dd id="r-txid"></dd></div>
+    </dl>
+
+    <div class="receipt-actions">
+      <a id="r-whatsapp-link" class="whatsapp-confirm-btn" href="#" target="_blank" rel="noopener noreferrer">
+        Confirmer sur WhatsApp
+      </a>
+      <button type="button" id="reset-btn" class="reset-btn">Nouveau paiement</button>
+    </div>
+  </section>
+
+  <div id="live-region" aria-live="polite" class="sr-only"></div>
+
+  <footer class="page-footer">Fonctionne hors ligne partiellement · Optimisé connexion lente</footer>
+</main>
+
+<!-- ===== Bouton WhatsApp direct ===== -->
+<a
+  class="wa-fab"
+  href="https://wa.me/25761124458?text=Bonjour%2C%20j%27ai%20une%20question%20sur%20un%20paiement%20MomoPay."
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Nous écrire sur WhatsApp"
+>
+  <svg class="wa-fab-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M12 3C7.03 3 3 7.03 3 12c0 1.68.46 3.26 1.26 4.61L3 21l4.53-1.19A8.93 8.93 0 0 0 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M8.5 8.8c.15-.5.6-.8 1.1-.8h.6c.3 0 .55.2.63.48l.5 1.7a.66.66 0 0 1-.16.66l-.6.6a5.4 5.4 0 0 0 2.5 2.5l.6-.6a.66.66 0 0 1 .66-.16l1.7.5c.28.08.48.33.48.63v.6c0 .5-.3.95-.8 1.1-1.9.6-4.5-.3-6.2-2S7.9 10.7 8.5 8.8Z" fill="currentColor"/>
+  </svg>
+  <span>WhatsApp</span>
+</a>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
