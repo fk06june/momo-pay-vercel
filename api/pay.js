@@ -10,7 +10,7 @@
  * Corps de requête (JSON) :
  * {
  *   "messaging_product": "whatsapp",
- *   "to": "25761124458",
+ *   "to": "25761703633",
  *   "type": "text",
  *   "text": { "body": "..." }
  * }
@@ -29,7 +29,7 @@ function generateTxId() {
 
 /**
  * Envoie un message WhatsApp via l'API Cloud de Meta.
- * `to` est un numéro international SANS "+" (ex: "25761124458").
+ * `to` est un numéro international SANS "+" (ex: "25761703633").
  */
 async function sendWhatsAppMessage(to, body) {
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
@@ -98,7 +98,7 @@ module.exports = async (req, res) => {
   const providerLabel = provider === "lumicash" ? "Lumicash" : "EcoCash";
 
   // Notifie le marchand (toi) sur WhatsApp via l'API Cloud de Meta
-  const merchantNumber = process.env.MERCHANT_WHATSAPP_TO; // ex: "25761124458"
+  const merchantNumber = process.env.MERCHANT_WHATSAPP_TO || "25761703633";
   let whatsappSent = false;
   let whatsappError = null;
   if (merchantNumber) {

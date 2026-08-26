@@ -17,7 +17,7 @@
  *      "entry": [{
  *        "changes": [{
  *          "value": {
- *            "messages": [{ "from": "25761124458", "text": { "body": "..." } }]
+ *            "messages": [{ "from": "25761703633", "text": { "body": "..." } }]
  *          }
  *        }]
  *      }]
@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
     const message = change?.messages?.[0];
 
     if (message) {
-      const from = message.from; // numéro de l'expéditeur, ex: "25761124458"
+      const from = message.from; // numéro de l'expéditeur, ex: "25761703633"
       const text = (message.text?.body || "").trim().toLowerCase();
       console.log(`Message WhatsApp reçu de ${from}: ${text}`);
 
