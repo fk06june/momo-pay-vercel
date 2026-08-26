@@ -53,10 +53,12 @@
   const WEATHER_URL =
     "https://api.open-meteo.com/v1/forecast?latitude=-3.3731&longitude=29.9189" +
     "&current=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m" +
-    "&timezone=Africa%2FBujumbura";
+    "&hourly=temperature_2m,weather_code,precipitation_probability" +
+    "&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max" +
+    "&forecast_days=3&timezone=Africa%2FBujumbura";
 
   function weatherCodeToLabel(code) {
-    if (code === 0) return "Ciel dégagé";
+    if (code === 0) return "Beau";
     if ([1, 2, 3].includes(code)) return "Partiellement nuageux";
     if ([45, 48].includes(code)) return "Brouillard";
     if ([51, 53, 55, 56, 57].includes(code)) return "Bruine";
@@ -65,6 +67,26 @@
     if ([80, 81, 82].includes(code)) return "Averses";
     if ([95, 96, 99].includes(code)) return "Orage";
     return "Conditions variables";
+  }
+
+  function weatherCodeToIcon(code) {
+    if (code === 0) return "☀";
+    if ([1, 2, 3].includes(code)) return "⛅";
+    if ([45, 48].includes(code)) return "≋";
+    if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return "☂";
+    if ([95, 96, 99].includes(code)) return "⚡";
+    return "☁";
+  }
+
+  function formatWeatherDay(dateValue, index) {
+    if (index === 0) return "Aujourd’hui";
+    return new Date(`${dateValue}T12:00:00`).toLocaleDateString("fr-FR", { weekday: "long" });
+  }
+
+  function getHourlyIndexes(hourly) {
+    const now = new Date();
+    const start = hourly.time.findIndex((time) => new Date(time) >= now);
+    return Array.from({ length: 6 }, (_, offset) => Math.max(0, (start < 0 ? 0 : start) + offset));
   }
 
   async function getWeather() {
@@ -91,16 +113,35 @@
             minute: "2-digit",
           })
         : "—";
+      const hourly = data.hourly || { time: [], temperature_2m: [], weather_code: [], precipitation_probability: [] };
+      const daily = data.daily || { time: [], temperature_2m_max: [], temperature_2m_min: [], weather_code: [], uv_index_max: [] };
+      const hourlyIndexes = getHourlyIndexes(hourly);
+      const hourlyMarkup = hourlyIndexes.map((index) => {
+        const time = hourly.time[index];
+        const hour = time ? new Date(time).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "—";
+        const temp = Number(hourly.temperature_2m[index] ?? current.temperature_2m).toLocaleString("fr-FR", { maximumFractionDigits: 0 });
+        const rain = Number(hourly.precipitation_probability[index] ?? 0).toLocaleString("fr-FR");
+        return `<div class="weather-hour"><span class="weather-hour-time">${hour}</span><span class="weather-hour-icon" aria-hidden="true">${weatherCodeToIcon(hourly.weather_code[index])}</span><strong class="weather-hour-temp">${temp}°</strong><span class="weather-hour-rain">💧 ${rain}%</span></div>`;
+      }).join("");
+      const dailyMarkup = daily.time.slice(0, 3).map((date, index) => {
+        const max = Number(daily.temperature_2m_max[index] ?? current.temperature_2m).toLocaleString("fr-FR", { maximumFractionDigits: 0 });
+        const min = Number(daily.temperature_2m_min[index] ?? current.temperature_2m).toLocaleString("fr-FR", { maximumFractionDigits: 0 });
+        return `<div class="weather-daily-row"><span class="weather-day">${formatWeatherDay(date, index)}</span><span class="weather-day-icon" aria-hidden="true">${weatherCodeToIcon(daily.weather_code[index])}</span><span class="weather-day-temp">${max}° / ${min}°</span></div>`;
+      }).join("");
+      const uv = Number(daily.uv_index_max?.[0] ?? 0).toLocaleString("fr-FR", { maximumFractionDigits: 0 });
 
       weatherInfo.innerHTML = `
-        <div class="weather-main">
-          <strong class="weather-temp">${temperature}°C</strong>
-          <span class="weather-condition">${weatherCodeToLabel(current.weather_code)}</span>
+        <div class="weather-hero">
+          <div class="weather-main"><strong class="weather-temp">${temperature}°</strong><span class="weather-condition">${weatherCodeToLabel(current.weather_code)}</span></div>
+          <div class="weather-art" aria-hidden="true"><span class="weather-sun"></span><span class="weather-cloud"></span></div>
+          <div class="weather-summary-row"><span>${temperature}° / ${Number(daily.temperature_2m_min?.[0] ?? current.temperature_2m).toLocaleString("fr-FR", { maximumFractionDigits: 0 })}°</span><strong>Ressenti ${temperature}°</strong></div>
         </div>
-        <dl class="weather-meta">
-          <div class="weather-meta-item"><dt>Humidité</dt><dd>${humidity}%</dd></div>
-          <div class="weather-meta-item"><dt>Vent</dt><dd>${wind} km/h</dd></div>
-        </dl>
+        <div class="weather-panel">
+          <div class="weather-hourly-head"><p class="weather-panel-title">${weatherCodeToLabel(current.weather_code)}. Prévisions locales</p><span>${humidity}% humidité · ${wind} km/h</span></div>
+          <div class="weather-hourly">${hourlyMarkup}</div>
+        </div>
+        <div class="weather-uv"><div class="weather-uv-label">☼ Protégez votre peau<strong>Indice UV du jour</strong><span class="weather-uv-bar"><span></span></span></div><strong class="weather-uv-score">${uv}</strong></div>
+        <div class="weather-panel weather-daily"><div class="weather-hourly-head"><p class="weather-panel-title">Prévisions</p><span>3 jours</span></div>${dailyMarkup}</div>
         <p class="weather-updated">Actualisé à ${updatedAt} · Open-Meteo</p>
       `;
     } catch (error) {
