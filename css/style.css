@@ -491,12 +491,6 @@ html, body {
   gap: 12px;
 }
 .weather-location { display: flex; align-items: center; gap: 10px; }
-.weather-menu {
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 24px;
-  line-height: 1;
-  transform: scaleX(1.05);
-}
 .weather-kicker {
   display: block;
   color: rgba(255, 255, 255, 0.70);
@@ -650,4 +644,33 @@ html, body {
   .weather-card { padding-inline: 16px; }
   .weather-hourly { gap: 1px; }
   .weather-hour-temp { font-size: 13px; }
+}
+
+
+/* ---- Professional inline weather icons ---- */
+.weather-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  vertical-align: middle;
+}
+.weather-icon-sun { color: #ffe071; }
+.weather-icon-partly { color: #fff; }
+.weather-icon-cloud { color: rgba(255, 255, 255, 0.88); }
+.weather-icon-rain { color: #d5f3ff; }
+.weather-icon-storm { color: #ffe071; }
+.weather-icon-drop { width: 10px; height: 10px; color: rgba(255, 255, 255, 0.62); }
+.weather-hour-icon { display: flex; align-items: center; justify-content: center; height: 24px; }
+.weather-hour-rain { display: inline-flex; align-items: center; justify-content: center; gap: 3px; }
+.weather-uv-heading { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.74); }
+.weather-uv-heading .weather-icon { width: 15px; height: 15px; }
+
+
+.weather-location-icon {
+  width: 14px;
+  height: 14px;
+  margin-left: 2px;
+  color: rgba(255, 255, 255, 0.86);
+  vertical-align: -1px;
 }

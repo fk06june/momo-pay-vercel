@@ -69,13 +69,27 @@
     return "Conditions variables";
   }
 
+  function iconSvg(type) {
+    const paths = {
+      sun: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/>',
+      partly: '<circle cx="15.5" cy="8.5" r="3.4"/><path d="M15.5 3.5v1.2M15.5 12.3v1.2M10.5 8.5h1.2M19.3 8.5h1.2M12 5l.85.85M18.15 11.15L19 12M8.2 16.5h8.4a3.2 3.2 0 0 0 .2-6.4 4.7 4.7 0 0 0-8.95 1.7A2.35 2.35 0 0 0 8.2 16.5Z"/>',
+      cloud: '<path d="M6.6 17.2h9.8a3.5 3.5 0 0 0 .2-7 5.3 5.3 0 0 0-10.1 1.9 2.55 2.55 0 0 0 .1 5.1Z"/>',
+      rain: '<path d="M6.6 13.2h9.8a3.5 3.5 0 0 0 .2-7 5.3 5.3 0 0 0-10.1 1.9 2.55 2.55 0 0 0 .1 5.1Z"/><path d="m8 17-.8 2M12 17l-.8 2M16 17l-.8 2"/>',
+      storm: '<path d="M6.6 13.2h9.8a3.5 3.5 0 0 0 .2-7 5.3 5.3 0 0 0-10.1 1.9 2.55 2.55 0 0 0 .1 5.1Z"/><path d="m13 14-2 4h2l-1 3 4-5h-2l2-2"/>',
+      drop: '<path d="M12 3.4S6.8 9.2 6.8 13.1a5.2 5.2 0 0 0 10.4 0C17.2 9.2 12 3.4 12 3.4Z"/>'
+    };
+    const fill = type === "sun" || type === "partly" ? "currentColor" : "none";
+    const stroke = type === "sun" || type === "partly" ? "currentColor" : "currentColor";
+    return `<svg class="weather-icon weather-icon-${type}" viewBox="0 0 24 24" fill="${fill}" stroke="${stroke}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[type] || paths.cloud}</svg>`;
+  }
+
   function weatherCodeToIcon(code) {
-    if (code === 0) return "☀";
-    if ([1, 2, 3].includes(code)) return "⛅";
-    if ([45, 48].includes(code)) return "≋";
-    if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return "☂";
-    if ([95, 96, 99].includes(code)) return "⚡";
-    return "☁";
+    if (code === 0) return iconSvg("sun");
+    if ([1, 2, 3].includes(code)) return iconSvg("partly");
+    if ([45, 48].includes(code)) return iconSvg("cloud");
+    if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return iconSvg("rain");
+    if ([95, 96, 99].includes(code)) return iconSvg("storm");
+    return iconSvg("cloud");
   }
 
   function formatWeatherDay(dateValue, index) {
@@ -121,7 +135,7 @@
         const hour = time ? new Date(time).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "—";
         const temp = Number(hourly.temperature_2m[index] ?? current.temperature_2m).toLocaleString("fr-FR", { maximumFractionDigits: 0 });
         const rain = Number(hourly.precipitation_probability[index] ?? 0).toLocaleString("fr-FR");
-        return `<div class="weather-hour"><span class="weather-hour-time">${hour}</span><span class="weather-hour-icon" aria-hidden="true">${weatherCodeToIcon(hourly.weather_code[index])}</span><strong class="weather-hour-temp">${temp}°</strong><span class="weather-hour-rain">💧 ${rain}%</span></div>`;
+        return `<div class="weather-hour"><span class="weather-hour-time">${hour}</span><span class="weather-hour-icon" aria-hidden="true">${weatherCodeToIcon(hourly.weather_code[index])}</span><strong class="weather-hour-temp">${temp}°</strong><span class="weather-hour-rain">${iconSvg("drop")} ${rain}%</span></div>`;
       }).join("");
       const dailyMarkup = daily.time.slice(0, 3).map((date, index) => {
         const max = Number(daily.temperature_2m_max[index] ?? current.temperature_2m).toLocaleString("fr-FR", { maximumFractionDigits: 0 });
@@ -140,7 +154,7 @@
           <div class="weather-hourly-head"><p class="weather-panel-title">${weatherCodeToLabel(current.weather_code)}. Prévisions locales</p><span>${humidity}% humidité · ${wind} km/h</span></div>
           <div class="weather-hourly">${hourlyMarkup}</div>
         </div>
-        <div class="weather-uv"><div class="weather-uv-label">☼ Protégez votre peau<strong>Indice UV du jour</strong><span class="weather-uv-bar"><span></span></span></div><strong class="weather-uv-score">${uv}</strong></div>
+        <div class="weather-uv"><div class="weather-uv-label"><span class="weather-uv-heading">${iconSvg("sun")} Protégez votre peau</span><strong>Indice UV du jour</strong><span class="weather-uv-bar"><span></span></span></div><strong class="weather-uv-score">${uv}</strong></div>
         <div class="weather-panel weather-daily"><div class="weather-hourly-head"><p class="weather-panel-title">Prévisions</p><span>3 jours</span></div>${dailyMarkup}</div>
         <p class="weather-updated">Actualisé à ${updatedAt} · Open-Meteo</p>
       `;
