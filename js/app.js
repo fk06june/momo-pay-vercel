@@ -2,21 +2,31 @@
   const MERCHANT_WHATSAPP = "25761703633"; // indicatif + numéro, sans "+" ni espaces
 
   function buildWhatsAppUrl(message) {
-    const query = new URLSearchParams({
-      phone: MERCHANT_WHATSAPP,
-      text: message,
-    }).toString();
-    // Sur ordinateur, WhatsApp Web évite la demande d’installation de l’application.
-    // Sur téléphone, l’URL universelle laisse le système ouvrir WhatsApp installé.
+    const encodedMessage = encodeURIComponent(message);
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const endpoint = isMobile ? "https://api.whatsapp.com/send" : "https://web.whatsapp.com/send";
-    return `${endpoint}?${query}`;
+    // Méthode reprise de whatsapp-direct.html : l’appareil ouvre WhatsApp
+    // via le protocole applicatif, tandis que l’ordinateur ouvre WhatsApp Web.
+    return isMobile
+      ? `whatsapp://send?phone=${MERCHANT_WHATSAPP}&text=${encodedMessage}`
+      : `https://web.whatsapp.com/send?phone=${MERCHANT_WHATSAPP}&text=${encodedMessage}`;
+  }
+
+  function openWhatsApp(message) {
+    const whatsappUrl = buildWhatsAppUrl(message);
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  }
+
+  function setWhatsAppAction(element, message) {
+    if (!element) return;
+    element.href = buildWhatsAppUrl(message);
+    element.addEventListener("click", (event) => {
+      event.preventDefault();
+      openWhatsApp(message);
+    });
   }
 
   const directWhatsAppLink = document.querySelector(".wa-fab");
-  if (directWhatsAppLink) {
-    directWhatsAppLink.href = buildWhatsAppUrl("Bonjour, j'ai une question sur un paiement MomoPay.");
-  }
+  setWhatsAppAction(directWhatsAppLink, "Bonjour, j'ai une question sur un paiement MomoPay.");
 
   const PROVIDERS = {
     lumicash: { label: "Lumicash" },
@@ -142,7 +152,7 @@
       `Référence : ${txId}\n` +
       `Montant : FBu ${Number(payload.amount).toLocaleString("fr-FR")}\n` +
       `Opérateur : ${PROVIDERS[payload.provider].label}`;
-    document.getElementById("r-whatsapp-link").href = buildWhatsAppUrl(waMessage);
+    setWhatsAppAction(document.getElementById("r-whatsapp-link"), waMessage);
 
     form.hidden = true;
     receipt.hidden = false;
